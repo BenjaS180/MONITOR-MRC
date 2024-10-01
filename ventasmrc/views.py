@@ -286,9 +286,8 @@ def home(request):
     
     return render(request, 'base.html', context)
 
-def signout():
+def signout(request):
     response = redirect('signin')
     response.delete_cookie('token-monitor')
     response.delete_cookie('username-monitor')
-
     return response
