@@ -90,16 +90,16 @@ def obtain_raw_public():
 
 
 def signin(request):
-    token_cookie = request.COOKIES.get('token')
-    username_cookie = request.COOKIES.get('username')
+    token_cookie = request.COOKIES.get('token-monitor')
+    username_cookie = request.COOKIES.get('username-monitor')
 
     if token_cookie and username_cookie:
         if is_valid_token(token_cookie, username_cookie):
             return redirect('monitor')
 
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username-monitor')
+        password = request.POST.get('password-monitor')
 
         # Llama a la función login que autentica contra la base de datos
         user = login(username, password)
@@ -107,8 +107,8 @@ def signin(request):
         if user is not None:
             token = str(uuid4())
             response = redirect('/monitor/')
-            response.set_cookie('username', user['username'])
-            response.set_cookie('token', token)
+            response.set_cookie('username-monitor', user['username'])
+            response.set_cookie('token-monitor', token)
             
             # Set token in the database
             set_token(token, user['username'])
@@ -124,8 +124,8 @@ def signin(request):
 
 
 def monitor(request):
-    token_cookie = request.COOKIES.get('token')
-    username_cookie = request.COOKIES.get('username')
+    token_cookie = request.COOKIES.get('token-monitor')
+    username_cookie = request.COOKIES.get('username-monitor')
     is_authenticated = is_valid_token(token_cookie, username_cookie)
 
     # Intenta obtener los datos del caché, si no están, los consulta y los almacena por 15 minutos (900 segundos)
@@ -272,8 +272,8 @@ def set_token(token, username):
 
 @require_http_methods(["GET"])
 def home(request):
-    username = request.COOKIES.get('username')
-    token = request.COOKIES.get('token')
+    username = request.COOKIES.get('username-monitor')
+    token = request.COOKIES.get('token-monitor')
 
     # Verifica si el token es válido
     is_authenticated = is_valid_token(token, username)
@@ -288,7 +288,7 @@ def home(request):
 
 def signout():
     response = redirect('signin')
-    response.delete_cookie('token')
-    response.delete_cookie('username')
+    response.delete_cookie('token-monitor')
+    response.delete_cookie('username-monitor')
 
     return response
