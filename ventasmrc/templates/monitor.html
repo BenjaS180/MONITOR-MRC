@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="refresh" content="600">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .not-bold {
+            font-weight: normal !important;
+        }
+        .monitor-table th, .monitor-table td {
+            vertical-align: top; 
+            font-size: 80%;
+        }
+        @media (max-width: 768px) {
+            .monitor-table th, .monitor-table td {
+                font-size: 60%;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h3 {
+                font-size: 16px;
+            }
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .td-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .td-content button {
+            margin-left: 10px;
+            width: 25px; /* Aumentar un poco el ancho para que el texto o ícono se vea mejor */
+            height: 25px; /* Mantener la altura proporcional */
+            padding: 0; /* Eliminar padding adicional */
+            text-align: center;
+            display: flex; /* Utilizar flexbox para centrar el contenido */
+            justify-content: center;
+            align-items: center;
+            font-size: 12px; /* Ajustar el tamaño de la fuente */
+            line-height: 1; /* Asegurar que la altura de la línea no afecte el tamaño del botón */
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+    </style>
+    </head>
+    <body style="background-color: rgba(211, 211, 211, 0.707);">
+    <main class="container pt-5">
+        <div class="row">
+            {% if error %}
+                <p>Error: {{ error }}</p>
+            {% else %}
+                {% csrf_token %}
+                <div class="table-responsive text-center" style="padding-top: 20px;">
+                    <h1>Monitor MRC</h1>
+                    <!-- {% if dataRAPTOR %} -->
+                        <h3 style="text-align: left;margin-bottom: 20px;font-size: 80%;">Publico: 0000 </h3>
+                    <!-- {% endif %} -->
+                    <table id="monitor-table" class="table monitor-table mx-auto" style="border: 2px solid black;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;" scope="col">
+                                    Nombre Local
+                                    <i class="fas fa-sort"></i>
+                                </th>
+                                <th style="text-align: left;" scope="col">
+                                    Total VPC
+                                    <i class="fas fa-sort"></i>
+                                </th>
+                                <th style="text-align: left;" scope="col">
+                                    Plan
+                                    <i class="fas fa-sort"></i>
+                                </th>
+                                <th style="text-align: left;" scope="col">
+                                    Plan - VPC
+                                    <i class="fas fa-sort"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="monitor-table-body">
+                            {% for entry in monitor_data %}
+                            <tr>
+                                <td style="text-align: left;" >{{ entry.local }}</td>
+                                <td style="text-align: left;" >{{ entry.total }}</td>
+                                <td style="text-align: left;" >{{ entry.presupuesto }}</td>
+                                <td style="text-align: left;" >0</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+        {% endif %}
+    </div>
+</main>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+$.noConflict();
+jQuery(document).ready(function($) {
+    let isDropdownActive = false;
+
+    // Function to handle sorting
+    $('th').click(function() {
+        var table = $(this).parents('table').eq(0);
+        var rows = table.find('tbody > tr').get();
+        var index = $(this).index();
+        var ascending = $(this).hasClass('asc');
+
+        rows.sort(function(a, b) {
+            var keyA = $(a).children('td').eq(index).text();
+            var keyB = $(b).children('td').eq(index).text();
+            var isNumeric = !isNaN(keyA) && !isNaN(keyB);
+
+            if (isNumeric) {
+                keyA = parseFloat(keyA);
+                keyB = parseFloat(keyB);
+                return ascending ? keyA - keyB : keyB - keyA;
+            } else {
+                return ascending ? keyA.localeCompare(keyB) : keyB.localeCompare(keyA);
+            }
+        });
+
+        $.each(rows, function(index, row) {
+            table.children('tbody').append(row);
+        });
+
+        $(this).toggleClass('asc', !ascending);
+        $(this).toggleClass('desc', ascending);
+    });
+
+
+});    
+</script>
+</body>
+</html>
+{% endblock %}
