@@ -98,8 +98,8 @@ def signin(request):
             return redirect('monitor')
 
     if request.method == 'POST':
-        username = request.POST.get('username-monitor')
-        password = request.POST.get('password-monitor')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         # Llama a la función login que autentica contra la base de datos
         user = login(username, password)
