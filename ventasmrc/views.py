@@ -155,6 +155,7 @@ def monitor(request):
         'username': username_cookie,
         'is_authenticated': is_authenticated,
         'monitor_data': monitor_data,
+        'publico_raw': publico_raw[0]['entries']
     }
 
     # Verifica que el token y el usuario sean válidos
