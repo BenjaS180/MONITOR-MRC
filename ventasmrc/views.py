@@ -24,7 +24,7 @@ def obtain_data():
         # Extraer año, mes y día de la fecha proporcionada
         year = datetime.now().year
         month = datetime.now().month
-        day = 21
+        day = datetime.now().day
         # datetime.now().day
 
         # Consulta SQL dinámica basada en la fecha
@@ -50,6 +50,137 @@ def obtain_data():
 
     return data
 
+def obtain_coupons():
+    server = '172.16.1.203'
+    database = 'codigounico'
+    username = 'itahue2018'
+    password = '1t4mrc2018'
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    try:
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+password)
+        conn.setdecoding(pyodbc.SQL_CHAR, encoding='latin1')
+        conn.setencoding(encoding='latin1')
+        cursor = conn.cursor()
+
+        query = f"""
+        SELECT        PLU, DescripcionPLU, COUNT(PLU) AS Cantidad
+        FROM            eventos_cupones
+        WHERE        (FechaEstado = '{str(today)}')
+        GROUP BY PLU, DescripcionPLU
+        """
+
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        data = []
+        for row in rows:
+            data.append({'plu': row.PLU, 'descripcion': row.DescripcionPLU, 'cantidad': row.Cantidad})
+        
+    except pyodbc.Error as e:
+        print("Error en la conexión o consulta a la base de datos:", e)
+        data = []
+        
+    return data
+
+def obtain_jjpp():
+    server = '172.16.1.203'
+    database = 'mrccentral'
+    username = 'itahue2018'
+    password = '1t4mrc2018'
+    
+    try:
+        conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+password)
+        conn.setdecoding(pyodbc.SQL_CHAR, encoding='latin1')
+        conn.setencoding(encoding='latin1')
+        cursor = conn.cursor()
+
+        query = """
+        SELECT        Producto, DescripcionProducto, SUM(CantidadxPrecio) AS Venta
+        FROM            MRC_VENTA_DETALLE_JPAGADOS
+        WHERE        (DAY(FechaVenta) = 6) AND (MONTH(FechaVenta) = 10) AND (YEAR(FechaVenta) = 2024)
+        GROUP BY DescripcionProducto, Producto
+        ORDER BY Producto
+        """
+        
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        
+        # Inicializamos los totales para cada grupo
+        castillo_del_terror_total = 0
+        mega_d_total = 0
+        lucky_total = 0
+        payaso_total = 0
+        b_challange_total = 0
+        golf_total = 0
+        p3c_terror_total = 0
+        ring_bowl_total = 0
+        basket_total = 0
+        botes_total = 0
+        ruleta_total = 0
+        h_striker_total = 0
+
+        # Procesamos las filas
+        for row in rows:
+            producto = row.Producto
+            venta = int(row.Venta)  # Aseguramos que la venta sea un número entero
+
+            if producto in ['0102', '1475', '2236']:
+                castillo_del_terror_total += venta
+            elif producto in ['2279', '1313', '1312']:
+                mega_d_total += venta
+            elif producto in ['2282', '1683']:
+                lucky_total += venta
+            elif producto in ['1315', '2280']:
+                payaso_total += venta
+            elif producto in ['1734', '2283']:
+                b_challange_total += venta
+            elif producto in ['2281', '1463', '1989']:
+                golf_total += venta
+            elif producto == '2254':
+                p3c_terror_total += venta
+            elif producto == '2035':
+                ring_bowl_total += venta
+            elif producto == '1306':
+                basket_total += venta
+            elif producto in ['1325', '1324', '2276', '2275']:
+                botes_total += venta
+            elif producto in ['1311', '2277']:
+                ruleta_total += venta
+            elif producto in ['0120', '1985', '2284']:
+                h_striker_total += venta
+
+        # Almacenamos los totales con sus nombres
+        data = [
+            {'nombre': 'Castillo del Terror', 'total_venta': f'{castillo_del_terror_total:,}'},
+            {'nombre': 'Mega D', 'total_venta': f'{mega_d_total:,}'},
+            {'nombre': 'Lucky', 'total_venta': f'{lucky_total:,}'},
+            {'nombre': 'Payaso', 'total_venta': f'{payaso_total:,}'},
+            {'nombre': 'B Challange', 'total_venta': f'{b_challange_total:,}'},
+            {'nombre': 'Golf', 'total_venta': f'{golf_total:,}'},
+            {'nombre': 'P3 Castillo del Terror', 'total_venta': f'{p3c_terror_total:,}'},
+            {'nombre': 'Ring Bowl', 'total_venta': f'{ring_bowl_total:,}'},
+            {'nombre': 'Basket', 'total_venta': f'{basket_total:,}'},
+            {'nombre': 'Botes', 'total_venta': f'{botes_total:,}'},
+            {'nombre': 'Ruleta', 'total_venta': f'{ruleta_total:,}'},
+            {'nombre': 'H Striker', 'total_venta': f'{h_striker_total:,}'}
+        ]
+
+        
+    except pyodbc.Error as e:
+        print("Error en la conexión o consulta a la base de datos:", e)
+        data = []
+
+    return data
+
+
+
+
+
+
+
+        
+            
 
 def obtain_raw_public():
     server = '172.20.8.5'
@@ -130,7 +261,9 @@ def monitor(request):
 
     # Intenta obtener los datos del caché, si no están, los consulta y los almacena por 15 minutos (900 segundos)
     datos_monitor = cache.get_or_set('datos_monitor', obtain_data, 900)
-    publico_raw = cache.get_or_set('publico_raw', obtain_raw_public, 900)
+    publico_raw = cache.get_or_set('publico_raw', obtain_raw_public, 920)
+    datos_cupones = cache.get_or_set('datos_cupones', obtain_coupons, 1000)
+    datos_jjpp = cache.get_or_set('datos_jjpp', obtain_jjpp, 1000)
 
     monitor_data = []
     if datos_monitor:
@@ -150,12 +283,15 @@ def monitor(request):
                 'total': "{:,.0f}".format(total_value) if total_value == total_value.to_integral_value() else "{:,.2f}".format(total_value),
                 'presupuesto': "{:,.2f}".format(presupuesto),  # Formatear el presupuesto con 2 decimales
             })
+    
 
     context = {
         'username': username_cookie,
         'is_authenticated': is_authenticated,
         'monitor_data': monitor_data,
-        'publico_raw': publico_raw[0]['entries']
+        'publico_raw': publico_raw[0]['entries'],
+        'datos_cupones': datos_cupones,
+        'datos_jjpp': datos_jjpp
     }
 
     # Verifica que el token y el usuario sean válidos

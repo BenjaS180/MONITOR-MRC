@@ -60,58 +60,124 @@
     </style>
     </head>
     <body style="background-color: rgba(211, 211, 211, 0.707);">
-    <main class="container pt-5">
-        <div class="row">
-            {% if error %}
-                <p>Error: {{ error }}</p>
-            {% else %}
-                {% csrf_token %}
-                <div class="table-responsive text-center" style="padding-top: 20px;">
-                    <h1>Monitor MRC</h1>
-                    {% if publico_raw == 0 %}
-                    <h1>Parque Sin publico</h1>
+        <main class="container pt-5">
+            <div class="row">
+                {% if error %}
+                    <p>Error: {{ error }}</p>
                 {% else %}
-                    <!-- {% if dataRAPTOR %} -->
-                        <h3 style="text-align: left;margin-bottom: 20px;font-size: 80%;">Publico: {{ publico_raw }}</h3>
-                    <!-- {% endif %} -->
-                    <table id="monitor-table" class="table monitor-table mx-auto" style="border: 2px solid black;">
-                        <thead>
-                            <tr>
-                                <th style="text-align: left;" scope="col">
-                                    Nombre Local
-                                    <i class="fas fa-sort"></i>
-                                </th>
-                                <th style="text-align: left;" scope="col">
-                                    Total VPC
-                                    <i class="fas fa-sort"></i>
-                                </th>
-                                <th style="text-align: left;" scope="col">
-                                    Plan
-                                    <i class="fas fa-sort"></i>
-                                </th>
-                                <th style="text-align: left;" scope="col">
-                                    Plan - VPC
-                                    <i class="fas fa-sort"></i>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="monitor-table-body">
-                            {% for entry in monitor_data %}
-                            <tr>
-                                <td style="text-align: left;">{{ entry.local }}</td>
-                                <td style="text-align: left;">{{ entry.total }}</td>
-                                <td style="text-align: left;">{{ entry.presupuesto }}</td>
-                                <td style="text-align: left;">0</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {% csrf_token %}
+                    <div class="text-center" style="padding-top: 20px;">
+                        <h1>Monitor MRC</h1>
+                        
+                        <!-- Sistema de pestañas -->
+                        <ul class="nav nav-tabs" id="monitorTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link active" id="table1-tab" data-bs-toggle="tab" href="#table1" role="tab" aria-controls="table1" aria-selected="true">Percapita A/B</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="table2-tab" data-bs-toggle="tab" href="#table2" role="tab" aria-controls="table2" aria-selected="false">Cupones</a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link" id="table3-tab" data-bs-toggle="tab" href="#table3" role="tab" aria-controls="table3" aria-selected="false">Percapita JJPP</a>
+                            </li>
+                            <!-- Puedes agregar más pestañas si lo necesitas -->
+                        </ul>
+        
+                        <!-- Contenido de las pestañas -->
+                        <div class="tab-content" id="monitorTabContent">
+                            <!-- Pestaña 1 -->
+                            <div class="tab-pane fade show active" id="table1" role="tabpanel" aria-labelledby="table1-tab">
+                                <div class="table-responsive" style="padding-top: 00px;">
+                                    <table id="monitor-table-1" class="table monitor-table mx-auto" style="border: 2px solid black;">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: left;" scope="col">
+                                                    Nombre Local
+                                                    <i class="fas fa-sort"></i>
+                                                </th>
+                                                <th style="text-align: left;" scope="col">
+                                                    Total VPC
+                                                    <i class="fas fa-sort"></i>
+                                                </th>
+                                                <th style="text-align: left;" scope="col">
+                                                    Plan
+                                                    <i class="fas fa-sort"></i>
+                                                </th>
+                                                <th style="text-align: left;" scope="col">
+                                                    Plan - VPC
+                                                    <i class="fas fa-sort"></i>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="monitor-table-body-1">
+                                            {% for entry in monitor_data %}
+                                            <tr>
+                                                <td style="text-align: left;">{{ entry.local }}</td>
+                                                <td style="text-align: left;">{{ entry.total }}</td>
+                                                <td style="text-align: left;">{{ entry.presupuesto }}</td>
+                                                <td style="text-align: left;">0</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+        
+                            <!-- Pestaña 2 -->
+                            <div class="tab-pane fade" id="table2" role="tabpanel" aria-labelledby="table2-tab">
+                                <div class="table-responsive" style="padding-top: 00px;">
+                                    <!-- Aquí puedes definir otra tabla o contenido diferente -->
+                                    <table id="monitor-table-2" class="table monitor-table mx-auto" style="border: 2px solid black;">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: left;" scope="col">PLU</th>
+                                                <th style="text-align: left;" scope="col">Descripción</th>
+                                                <th style="text-align: left;" scope="col">Cantidad</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="monitor-table-body-2">
+                                            {% for entry in datos_cupones %}
+                                            <tr>
+                                                <td style="text-align: left;">{{ entry.plu }}</td>
+                                                <td style="text-align: left;">{{ entry.descripcion }}</td>
+                                                <td style="text-align: left;">{{ entry.cantidad }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="tab-pane fade" id="table3" role="tabpane2" aria-labelledby="table3-tab">
+                        <div class="table-responsive" style="padding-top: 00px;">
+                            <!-- Aquí puedes definir otra tabla o contenido diferente -->
+                            <table id="monitor-table-3" class="table monitor-table mx-auto" style="border: 2px solid black;">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left;" scope="col">Nombre Zona Venta</th>
+                                        <th style="text-align: left;" scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monitor-table-body-2">
+                                    {% for entry in datos_jjpp %}
+                                    <tr>
+                                        <td style="text-align: left;">{{ entry.nombre }}</td>
+                                        <td style="text-align: left;">{{ entry.total_venta }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 {% endif %}
             </div>
-        {% endif %}
-
-    </div>
-</main>
+        </main>
 
 
 
