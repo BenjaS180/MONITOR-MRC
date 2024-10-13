@@ -24,7 +24,7 @@ def obtain_data():
         # Extraer año, mes y día de la fecha proporcionada
         year = datetime.now().year
         month = datetime.now().month
-        day = datetime.now().day
+        day = 12
         # datetime.now().day
 
         # Consulta SQL dinámica basada en la fecha
